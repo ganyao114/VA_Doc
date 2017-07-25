@@ -85,7 +85,7 @@ public class VAppManagerService extends IAppManager.Stub {
         }
     }
 
-
+    // 加载 Package
     synchronized void loadPackage(PackageSetting setting) {
         if (!loadPackageInnerLocked(setting)) {
             cleanUpResidualFiles(setting);
@@ -101,6 +101,7 @@ public class VAppManagerService extends IAppManager.Stub {
         File cacheFile = VEnvironment.getPackageCacheFile(ps.packageName);
         VPackage pkg = null;
         try {
+            // 读取安装时解析好的 VPackage Cache
             pkg = PackageParserEx.readPackageCache(ps.packageName);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -108,7 +109,9 @@ public class VAppManagerService extends IAppManager.Stub {
         if (pkg == null || pkg.packageName == null) {
             return false;
         }
+        // 赋予权限
         chmodPackageDictionary(cacheFile);
+        // add cache to ram
         PackageCacheManager.put(pkg, ps);
         BroadcastSystem.get().startApp(pkg);
         return true;
@@ -153,7 +156,7 @@ public class VAppManagerService extends IAppManager.Stub {
         }
         VPackage pkg = null;
         try {
-            // 进入解析包结构
+            // 进入解析包结构，该结构是可序列化的，为了持久化在磁盘上
             pkg = PackageParserEx.parsePackage(packageFile);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -176,7 +179,9 @@ public class VAppManagerService extends IAppManager.Stub {
             }
             res.isUpdate = true;
         }
+        // 获得 app 安装文件夹
         File appDir = VEnvironment.getDataAppPackageDirectory(pkg.packageName);
+        // so 文件夹
         File libDir = new File(appDir, "lib");
         if (res.isUpdate) {
             FileUtils.deleteDir(libDir);
@@ -186,14 +191,18 @@ public class VAppManagerService extends IAppManager.Stub {
         if (!libDir.exists() && !libDir.mkdirs()) {
             return InstallResult.makeFailure("Unable to create lib dir.");
         }
+
+        // 是否基于系统的 apk 加载，前提是安装过的 apk 并且 dependSystem 开关打开
         boolean dependSystem = (flags & InstallStrategy.DEPEND_SYSTEM_IF_EXIST) != 0
                 && VirtualCore.get().isOutsideInstalled(pkg.packageName);
 
         if (existSetting != null && existSetting.dependSystem) {
             dependSystem = false;
         }
-
+        // 复制 so 到 sandbox lib
         NativeLibraryHelperCompat.copyNativeBinaries(new File(path), libDir);
+
+        // 如果不基于系统，一些必要的拷贝工作
         if (!dependSystem) {
             File privatePackageFile = new File(appDir, "base.apk");
             File parentFolder = privatePackageFile.getParentFile();
@@ -213,7 +222,11 @@ public class VAppManagerService extends IAppManager.Stub {
         if (existOne != null) {
             PackageCacheManager.remove(pkg.packageName);
         }
+
+        // 给上可执行权限，5.0 之后在 SD 卡上执行 bin 需要可执行权限
         chmodPackageDictionary(packageFile);
+
+        // PackageSetting 的一些配置，后面会序列化在磁盘上
         PackageSetting ps;
         if (existSetting != null) {
             ps = existSetting;
@@ -236,10 +249,13 @@ public class VAppManagerService extends IAppManager.Stub {
                 ps.setUserState(userId, false/*launched*/, false/*hidden*/, installed);
             }
         }
+        //保存 VPackage Cache 到 Disk
         PackageParserEx.savePackageCache(pkg);
+        //保存到 RamCache
         PackageCacheManager.put(pkg, ps);
         mPersistenceLayer.save();
         BroadcastSystem.get().startApp(pkg);
+        //发送通知 安装完成
         if (notify) {
             notifyAppInstalled(ps, -1);
         }

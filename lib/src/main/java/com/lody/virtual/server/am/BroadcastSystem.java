@@ -127,6 +127,7 @@ public class BroadcastSystem {
         }
     }
 
+    // 基本上是静态 Receiver 的注册，采用注册一个然后，根据 Filter 过滤分发的方式。主要考虑到 Receiver 生命周期短暂并且较为简单
     public void startApp(VPackage p) {
         PackageSetting setting = (PackageSetting) p.mExtras;
         for (VPackage.ActivityComponent receiver : p.receivers) {

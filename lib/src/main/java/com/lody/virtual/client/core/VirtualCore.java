@@ -734,6 +734,7 @@ public final class VirtualCore {
         }
     }
 
+    // 是否在系统中安装
     public boolean isOutsideInstalled(String packageName) {
         try {
             return unHookPackageManager.getApplicationInfo(packageName, 0) != null;

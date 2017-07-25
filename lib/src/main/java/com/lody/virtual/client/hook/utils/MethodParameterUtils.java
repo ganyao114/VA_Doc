@@ -25,6 +25,7 @@ public class MethodParameterUtils {
 		return null;
 	}
 
+	// 看上去将包名替换成了 Host
 	public static String replaceLastAppPkg(Object[] args) {
 		int index = ArrayUtils.indexOfLast(args, String.class);
 		if (index != -1) {

@@ -7,7 +7,7 @@ import com.lody.virtual.client.hook.utils.MethodParameterUtils;
 /**
  * @author Lody
  */
-
+// 一个 Hook for 替换最新的 Pkg ？
 public class ReplaceLastPkgMethodProxy extends StaticMethodProxy {
 
 	public ReplaceLastPkgMethodProxy(String name) {
