@@ -96,6 +96,7 @@ public class VActivityManager {
         r.info = info;
         mActivities.put(token, r);
         try {
+            // 通知服务端 VAMS Activity 创建完成
             getService().onActivityCreated(component, caller, token, intent, affinity, taskId, launchMode, flags);
         } catch (RemoteException e) {
             e.printStackTrace();

@@ -22,6 +22,7 @@ import java.lang.reflect.Modifier;
  *         {@link InvocationStubManager}
  * @see Inject
  */
+//Method Hook 通过动态代理
 public abstract class MethodInvocationProxy<T extends MethodInvocationStub> implements IInjector {
 
     protected T mInvocationStub;

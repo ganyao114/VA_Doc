@@ -20,6 +20,7 @@ import mirror.android.os.ServiceManager;
 /**
  * @author Lody
  */
+// IBinder hook asInterface 接口
 @SuppressWarnings("unchecked")
 public class BinderInvocationStub extends MethodInvocationStub<IInterface> implements IBinder {
 

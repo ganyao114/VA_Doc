@@ -25,6 +25,7 @@ import mirror.android.app.IActivityManager;
      * @author Lody
      * @see Handler.Callback
      */
+// 狸猫换太子，取出真正的 Intent
     public class HCallbackStub implements Handler.Callback, IInjector {
 
 
@@ -97,33 +98,44 @@ import mirror.android.app.IActivityManager;
         private boolean handleLaunchActivity(Message msg) {
             Object r = msg.obj;
             Intent stubIntent = ActivityThread.ActivityClientRecord.intent.get(r);
+            // 获取原版 Intent 信息
             StubActivityRecord saveInstance = new StubActivityRecord(stubIntent);
             if (saveInstance.intent == null) {
                 return true;
             }
+            // 原版 Intent
             Intent intent = saveInstance.intent;
             ComponentName caller = saveInstance.caller;
             IBinder token = ActivityThread.ActivityClientRecord.token.get(r);
             ActivityInfo info = saveInstance.info;
+
+            // 如果 token 还没初始化，代表 App 刚刚启动第一个组件
             if (VClientImpl.get().getToken() == null) {
                 VActivityManager.get().processRestarted(info.packageName, info.processName, saveInstance.userId);
                 getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
                 return false;
             }
+            // AppBindData 为空，则 App 信息不明
             if (!VClientImpl.get().isBound()) {
                 VClientImpl.get().bindApplication(info.packageName, info.processName);
                 getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
                 return false;
             }
+
+            // 获取 TaskId
             int taskId = IActivityManager.getTaskForActivity.call(
                     ActivityManagerNative.getDefault.call(),
                     token,
                     false
             );
+
+            // 1.将 ActivityRecorder 加入 mActivities 2.通知服务端 VAMS Activity 创建完成
             VActivityManager.get().onActivityCreate(ComponentUtils.toComponentName(info), caller, token, info, intent, ComponentUtils.getTaskAffinity(info), taskId, info.launchMode, info.flags);
             ClassLoader appClassLoader = VClientImpl.get().getClassLoader(info.applicationInfo);
             intent.setExtrasClassLoader(appClassLoader);
+            // 将 Host Stub Activity Intent 替换为原版 Intent
             ActivityThread.ActivityClientRecord.intent.set(r, intent);
+            // 同上
             ActivityThread.ActivityClientRecord.activityInfo.set(r, info);
             return true;
         }

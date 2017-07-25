@@ -38,6 +38,7 @@ import mirror.android.util.Singleton;
  * @see android.app.ActivityManager
  */
 
+// Hook 替换 gDefault
 @LogInvocation(LogInvocation.Condition.ALWAYS)
 @Inject(MethodProxies.class)
 public class ActivityManagerStub extends MethodInvocationProxy<MethodInvocationStub<IInterface>> {

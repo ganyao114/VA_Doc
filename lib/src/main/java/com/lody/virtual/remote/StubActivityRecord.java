@@ -7,7 +7,7 @@ import android.content.pm.ActivityInfo;
 /**
  * @author Lody
  */
-
+//
 public class StubActivityRecord  {
         public Intent intent;
         public ActivityInfo info;
@@ -21,6 +21,7 @@ public class StubActivityRecord  {
             this.userId = userId;
         }
 
+        // 获取原版 Intent 和一些其他信息
         public StubActivityRecord(Intent stub) {
             this.intent = stub.getParcelableExtra("_VA_|_intent_");
             this.info = stub.getParcelableExtra("_VA_|_info_");
