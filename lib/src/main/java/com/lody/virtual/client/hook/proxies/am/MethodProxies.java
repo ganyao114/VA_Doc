@@ -77,7 +77,7 @@ import mirror.android.content.pm.UserInfo;
 @SuppressWarnings("unused")
 class MethodProxies {
 
-
+    // hook 在子程序包中调用的 forceStopPackage，否则 VA 进程全部 GG
     static class ForceStopPackage extends MethodProxy {
 
         @Override

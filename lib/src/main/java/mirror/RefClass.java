@@ -37,12 +37,16 @@ public final class RefClass {
 
 
     public static Class load(Class mappingClass, Class<?> realClass) {
+        // 获取 Mirror 类的所有字段
         Field[] fields = mappingClass.getDeclaredFields();
         for (Field field : fields) {
             try {
+                // 必须是 static 变量
                 if (Modifier.isStatic(field.getModifiers())) {
+                    // 从预设的 Map 中找到 RefXXXX 的构造器
                     Constructor<?> constructor = REF_TYPES.get(field.getType());
                     if (constructor != null) {
+                        // 赋值
                         field.set(null, constructor.newInstance(realClass, field));
                     }
                 }

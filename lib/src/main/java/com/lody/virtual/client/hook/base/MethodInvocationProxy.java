@@ -48,6 +48,7 @@ public abstract class MethodInvocationProxy<T extends MethodInvocationStub> impl
         if (inject != null) {
             Class<?> proxiesClass = inject.value();
             Class<?>[] innerClasses = proxiesClass.getDeclaredClasses();
+            // 遍历内部类
             for (Class<?> innerClass : innerClasses) {
                 if (!Modifier.isAbstract(innerClass.getModifiers())
                         && MethodProxy.class.isAssignableFrom(innerClass)

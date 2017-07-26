@@ -104,14 +104,17 @@ public final class InvocationStubManager {
 	}
 
 	private void injectInternal() throws Throwable {
+		// VA 自身的 App 进程不需要 Hook
 		if (VirtualCore.get().isMainProcess()) {
 			return;
 		}
+		// VAService 需要 Hook AMS 和 PMS
 		if (VirtualCore.get().isServerProcess()) {
 			addInjector(new ActivityManagerStub());
 			addInjector(new PackageManagerStub());
 			return;
 		}
+		// Client APP 需要 Hook 整个 framework，来使其调用到 VA framework
 		if (VirtualCore.get().isVAppProcess()) {
 			addInjector(new LibCoreStub());
 			addInjector(new ActivityManagerStub());

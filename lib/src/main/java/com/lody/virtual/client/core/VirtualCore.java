@@ -340,6 +340,7 @@ public final class VirtualCore {
 
     public InstallResult installPackage(String apkPath, int flags) {
         try {
+            // 调用远程 VAService
             return getService().installPackage(apkPath, flags);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
