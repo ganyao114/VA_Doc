@@ -28,6 +28,7 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 
 import com.lody.virtual.client.VClientImpl;
@@ -836,6 +837,7 @@ class MethodProxies {
                 return method.invoke(who, args);
             }
             int userId = VUserHandle.myUserId();
+            // 如果是内部请求,获取原来的 Service
             if (service.getBooleanExtra("_VA_|_from_inner_", false)) {
                 userId = service.getIntExtra("_VA_|_user_id_", userId);
                 service = service.getParcelableExtra("_VA_|_intent_");
@@ -846,7 +848,9 @@ class MethodProxies {
             }
             service.setDataAndType(service.getData(), resolvedType);
             ServiceInfo serviceInfo = VirtualCore.get().resolveServiceInfo(service, VUserHandle.myUserId());
+
             if (serviceInfo != null) {
+                // 远程调用 VAMS.startService()
                 return VActivityManager.get().startService(appThread, service, resolvedType, userId);
             }
             return method.invoke(who, args);

@@ -381,8 +381,10 @@ public class  VActivityManagerService extends IActivityManager.Stub {
             }
         }
 
+        // 如果 service 尚未创建
         if (needCreateService) {
             try {
+                // 调用 ApplicationThread.scheduleCreateService 直接创建 Service
                 IApplicationThreadCompat.scheduleCreateService(appThread, r, r.serviceInfo, 0);
             } catch (RemoteException e) {
                 e.printStackTrace();
@@ -391,8 +393,10 @@ public class  VActivityManagerService extends IActivityManager.Stub {
             // Note: If the service has been called for not AUTO_CREATE binding, the corresponding
             // ServiceRecord is already in mHistory, so we use Set to replace List to avoid add
             // ServiceRecord twice
+            // 将 ServiceRecorder 推入 history
             addRecord(r);
 
+            // 等待 bindService，如果是通过 bindService 自动创建的 Service，在创建 Service 完成后会进入 bindService 流程
             requestServiceBindingsLocked(r);
         }
 
