@@ -71,6 +71,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
         VirtualCore.get().getComponentDelegate().beforeActivityCreate(activity);
         IBinder token = mirror.android.app.Activity.mToken.get(activity);
         ActivityClientRecord r = VActivityManager.get().getActivityRecord(token);
+        // 替换 Activity 对象
         if (r != null) {
             r.activity = activity;
         }
@@ -80,6 +81,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
         if (r != null) {
             info = r.info;
         }
+        // 设置主题和屏幕纵横控制
         if (info != null) {
             if (info.theme != 0) {
                 activity.setTheme(info.theme);

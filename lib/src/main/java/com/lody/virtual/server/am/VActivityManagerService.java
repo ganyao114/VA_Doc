@@ -73,7 +73,7 @@ import static com.lody.virtual.os.VUserHandle.getUserId;
  * 山寨 AMS
  * 远程服务
  */
-public class VActivityManagerService extends IActivityManager.Stub {
+public class  VActivityManagerService extends IActivityManager.Stub {
 
     private static final boolean BROADCAST_NOT_STARTED_PKG = true;
 
@@ -916,6 +916,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
     }
 
     ProcessRecord startProcessIfNeedLocked(String processName, int userId, String packageName) {
+        // Stub 不足则需要释放内存
         if (VActivityManagerService.get().getFreeStubCount() < 3) {
             // run GC
             killAllApps();
@@ -981,7 +982,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
         }
         int pid = res.getInt("_VA_|_pid_");
         IBinder clientBinder = BundleCompat.getBinder(res, "_VA_|_client_");
-        // attach 到 VAMS
+        // attach 到 Client 的 VAM
         attachClient(pid, clientBinder);
         return app;
     }

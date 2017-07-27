@@ -26,41 +26,41 @@ import java.util.ArrayList;
 
 public class VPackage implements Parcelable {
 
-    public static final Creator<VPackage> CREATOR = new Creator<VPackage>() {
-        @Override
-        public VPackage createFromParcel(Parcel source) {
-            return new VPackage(source);
-        }
+        public static final Creator<VPackage> CREATOR = new Creator<VPackage>() {
+            @Override
+            public VPackage createFromParcel(Parcel source) {
+                return new VPackage(source);
+            }
 
-        @Override
-        public VPackage[] newArray(int size) {
-            return new VPackage[size];
-        }
-    };
-    public ArrayList<ActivityComponent> activities;
-    public ArrayList<ActivityComponent> receivers;
-    public ArrayList<ProviderComponent> providers;
-    public ArrayList<ServiceComponent> services;
-    public ArrayList<InstrumentationComponent> instrumentation;
-    public ArrayList<PermissionComponent> permissions;
-    public ArrayList<PermissionGroupComponent> permissionGroups;
-    public ArrayList<String> requestedPermissions;
-    public ArrayList<String> protectedBroadcasts;
-    public ApplicationInfo applicationInfo;
-    public Signature[] mSignatures;
-    public Bundle mAppMetaData;
-    public String packageName;
-    public int mPreferredOrder;
-    public String mVersionName;
-    public String mSharedUserId;
-    public ArrayList<String> usesLibraries;
-    public int mVersionCode;
-    public int mSharedUserLabel;
-    // Applications hardware preferences
-    public ArrayList<ConfigurationInfo> configPreferences = null;
-    // Applications requested features
-    public ArrayList<FeatureInfo> reqFeatures = null;
-    public Object mExtras;
+            @Override
+            public VPackage[] newArray(int size) {
+                return new VPackage[size];
+            }
+        };
+        public ArrayList<ActivityComponent> activities;
+        public ArrayList<ActivityComponent> receivers;
+        public ArrayList<ProviderComponent> providers;
+        public ArrayList<ServiceComponent> services;
+        public ArrayList<InstrumentationComponent> instrumentation;
+        public ArrayList<PermissionComponent> permissions;
+        public ArrayList<PermissionGroupComponent> permissionGroups;
+        public ArrayList<String> requestedPermissions;
+        public ArrayList<String> protectedBroadcasts;
+        public ApplicationInfo applicationInfo;
+        public Signature[] mSignatures;
+        public Bundle mAppMetaData;
+        public String packageName;
+        public int mPreferredOrder;
+        public String mVersionName;
+        public String mSharedUserId;
+        public ArrayList<String> usesLibraries;
+        public int mVersionCode;
+        public int mSharedUserLabel;
+        // Applications hardware preferences
+        public ArrayList<ConfigurationInfo> configPreferences = null;
+        // Applications requested features
+        public ArrayList<FeatureInfo> reqFeatures = null;
+        public Object mExtras;
 
     public VPackage() {
     }

@@ -117,6 +117,7 @@ import mirror.android.app.IActivityManager;
             }
             // AppBindData 为空，则 App 信息不明
             if (!VClientImpl.get().isBound()) {
+                // 初始化并绑定 Application
                 VClientImpl.get().bindApplication(info.packageName, info.processName);
                 getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
                 return false;

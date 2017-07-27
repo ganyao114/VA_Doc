@@ -208,11 +208,13 @@ public final class VClientImpl extends IVClient.Stub {
     private void bindApplicationNoCheck(String packageName, String processName, ConditionVariable lock) {
         mTempLock = lock;
         try {
+            // 设置未捕获异常的 Callback
             setupUncaughtHandler();
         } catch (Throwable e) {
             e.printStackTrace();
         }
         try {
+            // 修复 Provider 信息
             fixInstalledProviders();
         } catch (Throwable e) {
             e.printStackTrace();
@@ -223,6 +225,7 @@ public final class VClientImpl extends IVClient.Stub {
                 VirtualCore.mainThread(),
                 null
         );
+        // 从 VPMS 获取 apk 信息
         AppBindData data = new AppBindData();
         InstalledAppInfo info = VirtualCore.get().getInstalledAppInfo(packageName, 0);
         if (info == null) {
@@ -301,7 +304,7 @@ public final class VClientImpl extends IVClient.Stub {
             }
         }
 
-        // 修复子 App 中 ActivityThread.AppBinderData 的参数，因为之前用的是在 Host 程序中注册的 Stub 的信息
+        // 修复子 App 中 ActivityThread.AppBind信息erData 的参数，因为之前用的是在 Host 程序中注册的 Stub 的信息
         Object boundApp = fixBoundApp(mBoundApplication);
         mBoundApplication.info = ContextImpl.mPackageInfo.get(context);
         mirror.android.app.ActivityThread.AppBindData.info.set(boundApp, data.info);

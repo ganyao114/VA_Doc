@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.lody.virtual.client.core.VirtualCore;
@@ -510,6 +511,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
                 (Object[]) args);
     }
 
+    // 获取合适的 StubActivity，返回 StubActivity 全限定名
     private String fetchStubActivity(int vpid, ActivityInfo targetInfo) {
 
         boolean isFloating = false;
@@ -533,6 +535,8 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         }
 
         boolean isDialogStyle = isFloating || isTranslucent || showWallpaper;
+
+        // 根据在 Menifest 中注册的 pid
         if (isDialogStyle) {
             return VASettings.getStubDialogName(vpid);
         } else {
@@ -543,12 +547,19 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
     // 使用 Host Stub Activity 的 Intent 包装原 Intent 瞒天过海
     private Intent startActivityProcess(int userId, ActivityRecord sourceRecord, Intent intent, ActivityInfo info) {
         intent = new Intent(intent);
+        // 获得 Activity 对应的 ProcessRecorder，如果没有则表示这是 Process 第一个打开的组件，需要初始化 Application
         ProcessRecord targetApp = mService.startProcessIfNeedLocked(info.processName, userId, info.packageName);
         if (targetApp == null) {
             return null;
         }
         Intent targetIntent = new Intent();
-        targetIntent.setClassName(VirtualCore.get().getHostPkg(), fetchStubActivity(targetApp.vpid, info));
+
+        // 根据 Client App 的 PID 获取 StubActivity
+        String stubActivityPath = fetchStubActivity(targetApp.vpid, info);
+
+        Log.e("gy", "map activity:" + intent.getComponent().getClassName() + " -> " + stubActivityPath);
+
+        targetIntent.setClassName(VirtualCore.get().getHostPkg(), stubActivityPath);
         ComponentName component = intent.getComponent();
         if (component == null) {
             component = ComponentUtils.toComponentName(info);

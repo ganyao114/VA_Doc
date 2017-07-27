@@ -29,6 +29,7 @@ public class StubActivityRecord  {
             this.userId = stub.getIntExtra("_VA_|_user_id_", 0);
         }
 
+    // 将原版 Intent 塞到 Stub Intent
     public void saveToIntent(Intent stub) {
         stub.putExtra("_VA_|_intent_", intent);
         stub.putExtra("_VA_|_info_", info);

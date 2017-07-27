@@ -36,6 +36,7 @@ public final class BinderProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         Context context = getContext();
+        // 这是一个空前台服务，目的是为了保活 VAService 进程，即 :x 进程
         DaemonService.startup(context);
         if (!VirtualCore.get().isStartup()) {
             return true;

@@ -11,6 +11,7 @@ import android.os.IBinder;
 	public TaskRecord task;
 	public ComponentName component;
 	public ComponentName caller;
+	// Client App 中 Activity 的句柄
 	public IBinder token;
 	public int userId;
 	public ProcessRecord process;
