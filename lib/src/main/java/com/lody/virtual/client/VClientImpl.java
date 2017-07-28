@@ -478,9 +478,11 @@ public final class VClientImpl extends IVClient.Stub {
         if (mTempLock != null) {
             mTempLock.block();
         }
+        // 这里检查 Application 是否启动，注意注册 Provider 的逻辑也在里面
         if (!isBound()) {
             VClientImpl.get().bindApplication(info.packageName, info.processName);
         }
+        // 准备 ContentProviderClient
         IInterface provider = null;
         String[] authorities = info.authority.split(";");
         String authority = authorities.length == 0 ? info.authority : authorities[0];
@@ -496,6 +498,7 @@ public final class VClientImpl extends IVClient.Stub {
             e.printStackTrace();
         }
         if (client != null) {
+            // 反射获取 provider
             provider = mirror.android.content.ContentProviderClient.mContentProvider.get(client);
             client.release();
         }
@@ -600,16 +603,22 @@ public final class VClientImpl extends IVClient.Stub {
     private void handleReceiver(ReceiverData data) {
         BroadcastReceiver.PendingResult result = data.resultData.build();
         try {
+            // 依然是检测 Application 是否初始化，没有则初始化
             if (!isBound()) {
                 bindApplication(data.component.getPackageName(), data.processName);
             }
+            // 获取 Receiver 的 Context，这个context是一个ReceiverRestrictedContext实例，它有两个主要函数被禁掉：registerReceiver()和 bindService()。这两个函数在BroadcastReceiver.onReceive()不允许调用。每次Receiver处理一个广播，传递进来的context都是一个新的实例。
             Context context = mInitialApplication.getBaseContext();
             Context receiverContext = ContextImpl.getReceiverRestrictedContext.call(context);
             String className = data.component.getClassName();
+            Log.e("gy", "handler Receiver: " + className);
+            // 实例化目标 Receiver
             BroadcastReceiver receiver = (BroadcastReceiver) context.getClassLoader().loadClass(className).newInstance();
             mirror.android.content.BroadcastReceiver.setPendingResult.call(receiver, result);
             data.intent.setExtrasClassLoader(context.getClassLoader());
+            // 手动调用 onCreate
             receiver.onReceive(receiverContext, data.intent);
+            // 通知 Pending 结束
             if (mirror.android.content.BroadcastReceiver.getPendingResult.call(receiver) != null) {
                 result.finish();
             }
@@ -619,6 +628,7 @@ public final class VClientImpl extends IVClient.Stub {
                     "Unable to start receiver " + data.component
                             + ": " + e.toString(), e);
         }
+        // 这里需要远程通知 VAService 广播已送到
         VActivityManager.get().broadcastFinish(data.resultData);
     }
 

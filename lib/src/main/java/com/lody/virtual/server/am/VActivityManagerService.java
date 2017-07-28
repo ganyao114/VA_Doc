@@ -1222,8 +1222,11 @@ public class  VActivityManagerService extends IActivityManager.Stub {
 
     boolean handleStaticBroadcast(int appId, ActivityInfo info, Intent intent,
                                   PendingResultData result) {
+        // 这里是取出真正的目标 Intent
         Intent realIntent = intent.getParcelableExtra("_VA_|_intent_");
+        // 取出真正的目标 component
         ComponentName component = intent.getParcelableExtra("_VA_|_component_");
+        // 用户 id
         int userId = intent.getIntExtra("_VA_|_user_id_", VUserHandle.USER_NULL);
         if (realIntent == null) {
             return false;
@@ -1241,11 +1244,13 @@ public class  VActivityManagerService extends IActivityManager.Stub {
             // Verify the component.
             return false;
         }
+        Log.e("gy", "handler handleUserBroadcast: 1");
         String originAction = SpecialComponentList.unprotectAction(realIntent.getAction());
         if (originAction != null) {
             // restore to origin action.
             realIntent.setAction(originAction);
         }
+        Log.e("gy", "handler handleUserBroadcast: 2" );
         handleStaticBroadcastAsUser(vuid, info, realIntent, result);
         return true;
     }
@@ -1270,6 +1275,7 @@ public class  VActivityManagerService extends IActivityManager.Stub {
         ComponentName componentName = ComponentUtils.toComponentName(info);
         BroadcastSystem.get().broadcastSent(vuid, info, result);
         try {
+            // 远程调用 client app 的 scheduleReceiver
             client.scheduleReceiver(info.processName, componentName, intent, result);
         } catch (Throwable e) {
             if (result != null) {

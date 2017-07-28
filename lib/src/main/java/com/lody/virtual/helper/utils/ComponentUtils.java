@@ -106,6 +106,7 @@ public class ComponentUtils {
         String pkg = intent.getPackage();
         if (component != null) {
             newIntent.putExtra("_VA_|_user_id_", userId);
+            // 这里显式意图被重定位成 _VA_PKGNAME_CLASSNAME 的格式，与前面注册的时候对应
             newIntent.setAction(String.format("_VA_%s_%s", component.getPackageName(), component.getClassName()));
             newIntent.putExtra("_VA_|_component_", component);
             newIntent.putExtra("_VA_|_intent_", new Intent(intent));

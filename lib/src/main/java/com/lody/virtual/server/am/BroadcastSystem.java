@@ -2,6 +2,7 @@ package com.lody.virtual.server.am;
 
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -10,6 +11,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.Log;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
@@ -127,27 +129,34 @@ public class BroadcastSystem {
         }
     }
 
-    // 基本上是静态 Receiver 的注册，采用注册一个然后，根据 Filter 过滤分发的方式。主要考虑到 Receiver 生命周期短暂并且较为简单
+    // 静态 Receiver 的注册
     public void startApp(VPackage p) {
         PackageSetting setting = (PackageSetting) p.mExtras;
+        // 遍历 Client App 的 Receiver
         for (VPackage.ActivityComponent receiver : p.receivers) {
             ActivityInfo info = receiver.info;
+            // 得到对应 Client App 在 VAService 中的记录列表
             List<BroadcastReceiver> receivers = mReceivers.get(p.packageName);
             if (receivers == null) {
                 receivers = new ArrayList<>();
                 mReceivers.put(p.packageName, receivers);
             }
+            // 注册显式意图
             String componentAction = String.format("_VA_%s_%s", info.packageName, info.name);
             IntentFilter componentFilter = new IntentFilter(componentAction);
             BroadcastReceiver r = new StaticBroadcastReceiver(setting.appId, info, componentFilter);
             mContext.registerReceiver(r, componentFilter, null, mScheduler);
+            // 推入记录
             receivers.add(r);
+            // 遍历注册隐式意图
             for (VPackage.ActivityIntentInfo ci : receiver.intents) {
                 IntentFilter cloneFilter = new IntentFilter(ci.filter);
                 SpecialComponentList.protectIntentFilter(cloneFilter);
                 r = new StaticBroadcastReceiver(setting.appId, info, cloneFilter);
                 mContext.registerReceiver(r, cloneFilter, null, mScheduler);
+                // 推入记录
                 receivers.add(r);
+                Log.e("gy","register receiver: " + ci.filter.getAction(0));
             }
         }
     }
@@ -240,6 +249,7 @@ public class BroadcastSystem {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.e("gy","receive action=:" + intent.getAction());
             if (mApp.isBooting()) {
                 return;
             }

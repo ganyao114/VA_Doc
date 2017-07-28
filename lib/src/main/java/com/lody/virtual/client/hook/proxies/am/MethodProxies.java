@@ -1292,8 +1292,11 @@ class MethodProxies {
             int nameIdx = getProviderNameIndex();
             String name = (String) args[nameIdx];
             int userId = VUserHandle.myUserId();
+            // 远程调用 VPMS 从 VPackage 拿到 ProviderInfo
             ProviderInfo info = VPackageManager.get().resolveContentProvider(name, 0, userId);
+            // 拿不到说明目标 App 未启动
             if (info != null && info.enabled && isAppPkg(info.packageName)) {
+                // 远程调用 VAMS，然后 VAMS 再通过 AMS 远程调用注册在插件进程的 StubContentProvider.call 初始化插件进程
                 int targetVPid = VActivityManager.get().initProcess(info.packageName, info.processName, userId);
                 if (targetVPid == -1) {
                     return null;
@@ -1303,9 +1306,12 @@ class MethodProxies {
                 if (holder == null) {
                     return null;
                 }
+                // ContentProviderHolder 有两个成员变量provider、connection，provider 是目标 Provider 的 IBinder 句柄o
+                // connection 则是 callback
                 if (BuildCompat.isOreo()) {
                     IInterface provider = ContentProviderHolderOreo.provider.get(holder);
                     if (provider != null) {
+                        // 这里是重点，远程调用了 VAMS 的 acquireProviderClient
                         provider = VActivityManager.get().acquireProviderClient(userId, info);
                     }
                     ContentProviderHolderOreo.provider.set(holder, provider);
