@@ -52,7 +52,7 @@ public class PackageParserEx {
         PackageParser parser = PackageParserCompat.createParser(packageFile);
         // 调用对应系统版本的 parsePackage 方法
         PackageParser.Package p = PackageParserCompat.parsePackage(parser, packageFile, 0);
-        // 包含此信息代表其是 share lib
+        // 包含此信息代表其是 debug 签名或者其他签名
         if (p.requestedPermissions.contains("android.permission.FAKE_PACKAGE_SIGNATURE")
                 && p.mAppMetaData != null
                 && p.mAppMetaData.containsKey("fake-signature")) {
